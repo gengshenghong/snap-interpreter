@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "canvas": "^1.3.12",
-    "firmata": "~0.3.3",
+    "firmata": "^0.3.8",
     "hashmap": "^2.0.4",
     "serialport": ">=0.7.5"
   }

@@ -6,6 +6,27 @@ SpriteMorph.prototype.bubble = function(data, isThought, isQuestion) {
 
 WorldMorph.prototype.fillPage = function() { };
 
+Process.prototype.isCatchingErrors = false;
+
+function showMessage(title, contents) {
+    console.log(title + '\n' + title.replace(/./g, '=') + '\n' + contents + '\n' + title.replace(/./g, '=') + '\n\n');
+};
+
+DialogBoxMorph.prototype.inform = function(title, textString, world, pic) {
+    showMessage(title, textString);
+};
+
+if (!snapMode) {
+    SpriteMorph.prototype.oldInit = SpriteMorph.prototype.init;
+    SpriteMorph.prototype.init = function(globals) {
+        var myself = this;
+        this.oldInit(globals);
+        this.arduino.showMessage = function(message) {
+            showMessage(myself.name, message);
+        };
+    };
+}
+
 // This is impossible to decorate...
 SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
     // private
@@ -251,4 +272,3 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
     this.objects = {};
     return project;
 };
-
