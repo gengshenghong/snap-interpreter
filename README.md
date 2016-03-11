@@ -35,6 +35,13 @@ If npm fails to install canvas, you may need to install its prerequisites. In De
 # apt-get install g++ build-essential libgif-dev libpango1.0-dev libjpeg-dev libcairo2-dev
 ```
 
+Note that you'll need Node 0.10.4x or higher, which you can install by doing:
+
+```
+# curl -sL https://deb.nodesource.com/setup_4.x | bash
+# apt-get install -y nodejs
+```
+
 For other systems, please refer to https://github.com/Automattic/node-canvas#installation
 
 After installing all dependencies, you can run any project by doing:
