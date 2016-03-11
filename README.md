@@ -23,7 +23,7 @@ $ cd Snap4Arduino/snap
 $ npm install
 ```
 
-If you don't need Snap4Arduino compatibility (plain Snap_! _mode), just remove _firmata_ from the packages to install:
+If you don't need Snap4Arduino compatibility (plain Snap! mode), just remove _firmata_ from the packages to install:
 
 ```
 $ npm install canvas hashmap
@@ -43,15 +43,13 @@ After installing all dependencies, you can run any project by doing:
 $ node snap.js project.xml
 ```
 
-If your project is a plain Snap_! _one, add a _--plain-snap_ parameter:
+If your project is a plain Snap one, add a _--plain-snap_ parameter:
 
 ```
 $ node snap.js project.xml --plain-snap
 ```
 
 For now, the only output comes from say, think and ask blocks, but it's easily doable to add a way to live-stream the contents of the stage.
-
-The code in this hack is a bit dirty. Hacks are ugly, and that's what makes them fun!
 
 ## Third party NodeJS packages:
 * [node-canvas](https://github.com/Automattic/node-canvas)
