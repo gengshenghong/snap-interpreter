@@ -20,7 +20,7 @@ Cd into this folder and install all dependencies:
 
 ```
 $ cd Snap4Arduino/snap
-$ npm install canvas hashmap firmata
+$ npm install
 ```
 
 If you don't need Snap4Arduino compatibility (plain Snap_! _mode), just remove _firmata_ from the packages to install:
@@ -29,7 +29,15 @@ If you don't need Snap4Arduino compatibility (plain Snap_! _mode), just remove _
 $ npm install canvas hashmap
 ```
 
-This will install all dependencies. After that, you can load any project by doing:
+If npm fails to install canvas, you may need to install its prerequisites. In Debian/Raspbian, this should suffice:
+
+```
+# apt-get install g++ build-essential libgif-dev libpango1.0-dev libjpeg-dev libcairo2-dev
+```
+
+For other systems, please refer to https://github.com/Automattic/node-canvas#installation
+
+After installing all dependencies, you can run any project by doing:
 
 ```
 $ node snap.js project.xml
