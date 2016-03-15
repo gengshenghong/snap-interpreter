@@ -62,7 +62,7 @@ var includeInThisContext = function(path) {
     // we can't "require" modules from within "appended" js files
     var code = fs.readFileSync(path, {encoding: 'utf-8'});
 
-    if (path.match('s4a') && !snapMode) {
+    if (path.match('s4a')) {
         code = code.replace('require', 'include');
     }
 
@@ -100,9 +100,7 @@ if (!snapMode) {
 
 includeInThisContext('gui.js');
 
-if (!snapMode) {
-    includeInThisContext('s4a/httpserver.js');
-}
+includeInThisContext('s4a/httpserver.js');
 
 includeInThisContext('lists.js');
 includeInThisContext('byob.js');
