@@ -20,6 +20,7 @@ vm = require('vm');
 projectFileName = process.argv[2];
 snapMode = process.argv[3] === '--plain-snap';
 Canvas = require('canvas');
+HTMLCanvasElement = Canvas;
 Image = Canvas.Image;
 canvas = new Canvas(200, 200);
 Map = require('hashmap');
@@ -104,6 +105,7 @@ includeInThisContext('s4a/httpserver.js');
 
 includeInThisContext('lists.js');
 includeInThisContext('byob.js');
+includeInThisContext('tables.js');
 includeInThisContext('xml.js');
 includeInThisContext('store.js');
 

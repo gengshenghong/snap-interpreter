@@ -14,9 +14,7 @@
     "min_height": 640
   },
   "dependencies": {
-    "canvas": "^1.3.12",
-    "firmata": "^0.3.8",
-    "hashmap": "^2.0.4",
+    "firmata": "~0.3.3",
     "serialport": ">=0.7.5"
   }
 }
