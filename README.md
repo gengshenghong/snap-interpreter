@@ -52,7 +52,7 @@ If your project is a plain Snap one, add a _--plain-snap_ parameter:
 $ node snap.js project.xml --plain-snap
 ```
 
-For now, the only output comes from say, think and ask blocks, but it's easily doable to add a way to live-stream the contents of the stage.
+Console outputs the result of *say*, *think* and *ask* blocks, all messages given by the UI and the contents of the stage via a tiny webserver accessible at http://[your-ip]:42001/stage.
 
 ## Third party NodeJS packages:
 * [node-canvas](https://github.com/Automattic/node-canvas)
