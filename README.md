@@ -16,17 +16,22 @@ $ git clone https://github.com/bromagosa/snap-interpreter.git
 $ mv snap-interpreter/* Snap4Arduino/snap
 ```
 
-Cd into this folder and install all dependencies:
+Cd into this folder and install dependencies according to your needs:
 
 ```
 $ cd Snap4Arduino/snap
-$ npm install
 ```
 
-If you don't need Snap4Arduino compatibility (plain Snap! mode), just remove _firmata_ from the packages to install:
+If you need Snap4Arduino compatibility:
 
 ```
-$ npm install canvas hashmap
+$ npm install firmata
+```
+
+If you want to have full Canvas support to be able to stream your stage over HTTP:
+
+```
+$ npm install canvas 
 ```
 
 If npm fails to install canvas, you may need to install its prerequisites. In Debian/Raspbian, this should suffice:
@@ -37,19 +42,32 @@ If npm fails to install canvas, you may need to install its prerequisites. In De
 
 Note that you'll need Node 0.10.4x or higher. Follow instructions from https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions
 
-
 For other systems, please refer to https://github.com/Automattic/node-canvas#installation
 
-After installing all dependencies, you can run any project by doing:
+## Usage
+
+Please note that if you are using an old Node.js version (like 0.10.x), you will most probably need call it with the ``--harmony`` parameter. This is due to old Node.js versions not supporting native hash maps out of the box.
 
 ```
-$ node snap.js project.xml
-```
+node [--harmony] snap.js yourProject.xml [--plain-snap] [--canvas] [--serve]
+Runs a Berkeley Snap! project or a Snap4Arduino one on the command line
 
-If your project is a plain Snap one, add a _--plain-snap_ parameter:
-
-```
-$ node snap.js project.xml --plain-snap
+	--plain-snap
+		Runs a plain Snap! project with no Arduino capabilities
+	--canvas
+		Renders the Stage in an HTTP-streamable canvas. Automatically adds «--serve»
+	--serve
+		Starts a simple HTTP server at port 42001 with the following entry points:
+		http://[IP]:42001/stage
+			Streams the Stage in real time. Needs «--canvas»
+		http://[IP]:42001/broadcast=[message]
+			Broadcasts «message» to Snap! so it can be captured by «When I receive» hat blocks
+		http://[IP]:42001/send-messages
+			Lists all messages being used in the Snap! program
+		http://[IP]:42001/send-vars
+			Lists all variables being used in the Snap! program
+		http://[IP]:42001/vars-update=[variable]=[value]
+			Sets the Snap! variable «variable» to «value»
 ```
 
 Console outputs the result of *say*, *think* and *ask* blocks, all messages given by the UI and the contents of the stage via a tiny webserver accessible at http://[your-ip]:42001/stage.
