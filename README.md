@@ -73,6 +73,5 @@ Runs a Berkeley Snap! project or a Snap4Arduino one on the command line
 Console outputs the result of *say*, *think* and *ask* blocks, all messages given by the UI and the contents of the stage via a tiny webserver accessible at http://[your-ip]:42001/stage.
 
 ## Third party NodeJS packages:
-* [node-canvas](https://github.com/Automattic/node-canvas)
-* [hashmap](https://www.npmjs.com/package/hashmap)
-* [firmata](https://github.com/jgautier/firmata) _(only for Snap4Arduino compatibility)_
+* [node-canvas](https://github.com/Automattic/node-canvas) _(only with ``--canvas`` flag active)_
+* [firmata](https://github.com/jgautier/firmata) _(if you need Snap4Arduino compatibility)_
