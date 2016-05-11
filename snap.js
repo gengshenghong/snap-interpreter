@@ -8,10 +8,15 @@ vm = require('vm');
 
 // Let's parse all parameters
 
-projectFileName = process.argv.find(function(each){ return each.endsWith('.xml') });
-snapMode = process.argv.includes('--plain-snap');
-canvasMode = process.argv.includes('--canvas');
-httpServerMode = process.argv.includes('--serve') || canvasMode;
+projectFileName = process.argv.filter(function(any) { return any.substr(-4) === '.xml' });
+
+if (projectFileName) {
+    projectFileName = projectFileName[0];
+}
+
+snapMode = process.argv.indexOf('--plain-snap') > -1;
+canvasMode = process.argv.indexOf('--canvas') > -1;
+httpServerMode = process.argv.indexOf('--serve') > -1 || canvasMode;
 
 // Let's treat all parameters
 
