@@ -20,7 +20,7 @@ httpServerMode = process.argv.indexOf('--serve') > -1 || canvasMode;
 
 // Let's treat all parameters
 
-if (process.argv.includes('--help')) {
+if (process.argv.indexOf('--help') > -1) {
     printHelp();
 };
 
