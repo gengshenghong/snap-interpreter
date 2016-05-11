@@ -9,17 +9,17 @@ First, get the Snap4Arduino sources:
 $ git clone https://github.com/edutec/Snap4Arduino
 ```
 
-Then, clone this repo and move all of its files inside the Snap4Arduino _snap_ folder:
+Then, clone this repo and move all of its files inside the Snap4Arduino folder:
 
 ```
 $ git clone https://github.com/bromagosa/snap-interpreter.git
-$ mv snap-interpreter/* Snap4Arduino/snap
+$ mv snap-interpreter/* Snap4Arduino
 ```
 
 Cd into this folder and install dependencies according to your needs:
 
 ```
-$ cd Snap4Arduino/snap
+$ cd Snap4Arduino
 ```
 
 If you need Snap4Arduino compatibility:
