@@ -73,6 +73,10 @@ var includeInThisContext = function(path, needsRequire) {
 
 // Let's load it all
 
+if (!Object.assign) {
+    require('es6-shim');
+}
+
 includeInThisContext(canvasMode ? 'canvas.js' : 'nodify.js');
 
 includeInThisContext('snap/morphic.js');
