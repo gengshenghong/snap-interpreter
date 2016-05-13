@@ -1,10 +1,10 @@
 var path = process.argv.filter(function(any) { return any.substring(0,8) === '/dev/tty' }),
-    port = process.argv.filter(function(any) { return Number(any).toString() === any }),
+    port = process.argv.filter(function(any) { return Number(any).toString() === any });
     WebSocketServer = require('ws').Server,
-    webSocketServer = new WebSocketServer({ port: port ? port[0] : 8080 }),
+    webSocketServer = new WebSocketServer({ port: port[0] || 8080 }),
     firmata = require('firmata'),
     board = new firmata.Board(
-        path ? path[0] : '/dev/ttySAMD',
+        path[0] || '/dev/ttySAMD',
         function() { console.log('MCU ready'); }),
     commands = {};
 
@@ -17,27 +17,15 @@ webSocketServer.on('connection', function(ws) {
             parsedMessage = JSON.parse(message);
         } catch (err) {
             console.error('unparseable message:\n' + err);
+            return;
         }
         commands[parsedMessage.command].apply(null, parsedMessage.args.concat(ws));
     });
 });
 
-
-commands.setPinMode = function (pin, mode) {
-    switch(mode[0]) {
-        case 'digital input': val = board.MODES.INPUT; break;
-        case 'digital output': val = board.MODES.OUTPUT; break;
-        case 'PWM': val = board.MODES.PWM; break;
-        case 'servo': val = board.MODES.SERVO; break;
-        case 'analog input': val = board.MODES.ANALOG; break;
-    }
-    if (board.pins[pin].supportedModes.indexOf(val) > -1) {	
-        board.pinMode(pin, val);
-    }
-}
-
 commands.servoWrite = function (pin, value) {
     if (board.pins[pin].mode != board.MODES.SERVO) {
+        console.log('setting pin mode to servo');
         board.pinMode(pin, board.MODES.SERVO);
     }
 
@@ -68,6 +56,7 @@ commands.servoWrite = function (pin, value) {
 commands.reportAnalogReading = function (pin, ws) {
     if (board.pins[board.analogPins[pin]].mode != board.MODES.ANALOG) {
         board.pinMode(board.analogPins[pin], board.MODES.ANALOG);
+        console.log('setting pin mode to analog input');
         board.analogRead(pin, function(value) { 
             board.pins[board.analogPins[pin]].value = value;
         });
@@ -78,6 +67,7 @@ commands.reportAnalogReading = function (pin, ws) {
 commands.reportDigitalReading = function (pin, ws) {
     if (board.pins[pin].mode != board.MODES.INPUT) {
         board.pinMode(pin, board.MODES.INPUT);
+        console.log('setting pin mode to digital input');
         board.digitalRead(pin, function(value) { 
             board.pins[pin].value = value;
         });
@@ -88,6 +78,7 @@ commands.reportDigitalReading = function (pin, ws) {
 commands.digitalWrite = function (pin, booleanValue) {
     if (board.pins[pin].mode != board.MODES.OUTPUT) {
         board.pinMode(pin, board.MODES.OUTPUT);
+        console.log('setting pin mode to digital output');
     }
     board.digitalWrite(pin, booleanValue ? board.HIGH : board.LOW);
 }
@@ -95,6 +86,7 @@ commands.digitalWrite = function (pin, booleanValue) {
 commands.pwmWrite = function (pin, value) {
     if (board.pins[pin].mode != board.MODES.PWM) {
         board.pinMode(pin, board.MODES.PWM);
+        console.log('setting pin mode to PWM');
     }
     board.analogWrite(pin, value);
 }
