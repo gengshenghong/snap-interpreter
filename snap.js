@@ -142,6 +142,11 @@ if (!snapMode) {
 
 ide = new IDE_Morph();
 ide.openIn(world);
+
+if (httpServerMode) {
+    ide.startServer();
+}
+
 ide.rawOpenProjectString(project);
 ide.runScripts();
 
