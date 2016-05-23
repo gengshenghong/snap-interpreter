@@ -101,6 +101,7 @@ if (!snapMode) {
 includeInThisContext('snap/objects.js');
 
 if (!snapMode) {
+    includeInThisContext('snap/s4a/arduino.js');
     includeInThisContext('snap/s4a/objects.js');
 }
 
