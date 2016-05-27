@@ -24,6 +24,7 @@ httpServerMode = process.argv.indexOf('--serve') > -1 || canvasMode;
 
 if (process.argv.indexOf('--help') > -1) {
     printHelp();
+    process.exit(0);
 };
 
 if (!projectFileName) {
