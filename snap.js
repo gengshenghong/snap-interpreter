@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // Yes, no "var"
 // We need to keep it ugly if we want everybody to be able to access these
 
@@ -60,7 +62,7 @@ include = function(moduleName) { return require(moduleName) };
 
 var includeInThisContext = function(path, needsRequire) {
     // we can't "require" modules from within "appended" js files
-    var code = fs.readFileSync(path, {encoding: 'utf-8'});
+    var code = fs.readFileSync(__dirname + '/' + path, {encoding: 'utf-8'});
 
     if (needsRequire) {
         code = code.replace('require', 'include');
