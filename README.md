@@ -3,23 +3,18 @@ Command line Snap4Arduino interpreter. You feed it an XML project file and it ru
 
 ## Installation
 
-First, get the Snap4Arduino sources:
+### Preparing the repo
 
-```
-$ git clone https://github.com/edutec/Snap4Arduino
-```
-
-Then, clone this repo and move all of its files inside the Snap4Arduino folder:
+First of all, clone this repo:
 
 ```
 $ git clone https://github.com/bromagosa/snap-interpreter.git
-$ mv snap-interpreter/* Snap4Arduino
 ```
 
-Cd into this folder and install dependencies according to your needs:
+Cd into its root folder and install dependencies according to your needs:
 
 ```
-$ cd Snap4Arduino
+$ cd snap-interpreter
 ```
 
 If you need Snap4Arduino compatibility:
@@ -44,12 +39,22 @@ Note that you'll need Node 0.10.4x or higher. Follow instructions from https://n
 
 For other systems, please refer to https://github.com/Automattic/node-canvas#installation
 
-## Usage
+### System-wide installation
 
-Please note that if you are using an old Node.js version (like 0.10.x), you will most probably need call it with the ``--harmony`` parameter. This is due to old Node.js versions not supporting native hash maps out of the box.
+_If you don't want to perform a system-wide install, just clone Snap4Arduino and move its ``snap`` folder into the ``snap-interpreter`` root folder._
+
+To install the snap-interpreter in your system, just run the ``install.sh`` script with root privileges.
 
 ```
-node [--harmony] snap.js yourProject.xml [--plain-snap] [--canvas] [--serve]
+# ./install.sh
+```
+
+You can now call ``snap.js`` from anywhere in your system to run any Snap! XML exported project.
+
+## Usage
+
+```
+snap.js yourProject.xml [--plain-snap] [--canvas] [--serve]
 Runs a Berkeley Snap! project or a Snap4Arduino one on the command line
 
 	--plain-snap

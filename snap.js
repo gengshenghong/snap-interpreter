@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/node --harmony
 
 // Yes, no "var"
 // We need to keep it ugly if we want everybody to be able to access these
@@ -32,18 +32,12 @@ if (!projectFileName) {
     process.exit(1);
 }
 
-if (!global.Map) { 
-    console.error('Please use node --harmony to run snap.js');
-    printHelp();
-    process.exit(1);
-}
-
 if (projectFileName) {
     project = fs.readFileSync(projectFileName, { encoding: 'utf-8' });
 }
 
 function printHelp() {
-    console.log('Usage: node [--harmony] snap.js yourProject.xml [--plain-snap] [--canvas] [--serve]');
+    console.log('Usage: snap.js yourProject.xml [--plain-snap] [--canvas] [--serve]');
     console.log('Runs a Berkeley Snap! project or a Snap4Arduino one on the command line\n');
     console.log('\t--plain-snap\n\t\tRuns a plain Snap! project with no Arduino capabilities');
     console.log('\t--canvas\n\t\tRenders the Stage in an HTTP-streamable canvas. Automatically adds «--serve»');
@@ -65,7 +59,7 @@ var includeInThisContext = function(path, needsRequire) {
     var code = fs.readFileSync(__dirname + '/' + path, {encoding: 'utf-8'});
 
     if (needsRequire) {
-        code = code.replace('require', 'include');
+        code = code.replace(/require/g, 'include');
     }
 
     vm.runInThisContext(code, path);
