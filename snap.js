@@ -168,8 +168,10 @@ if (lininoMode) {
     require('./ideino-linino-lib/utils/proto.js');
     var linino = require('./ideino-linino-lib');
     includeInThisContext('linino.js');
-    ide.currentSprite.arduino.board = new linino.Board();
-    ide.currentSprite.arduino.board.connect(function () {
+    var board = new linino.Board();
+    ide.currentSprite.arduino.board = board;
+    board.connect(function () {
+        ide.currentSprite.arduino.board.pins = {};
         console.log('Board connected via LininoIO');
         startUp();
     });
