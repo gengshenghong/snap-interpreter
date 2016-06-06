@@ -272,3 +272,54 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
     this.objects = {};
     return project;
 };
+
+if (!snapMode) {
+    Arduino.prototype.connect = function (port, callback) {
+        var myself = this;
+
+        this.showMessage(localize('Connecting board at port\n') + port);
+
+        this.board = new world.Arduino.firmata.Board(port, function (err) { 
+            if (!err) { 
+
+                // Clear timeout to avoid problems if connection is closed before timeout is completed
+                clearTimeout(myself.connectionTimeout); 
+
+                // Start the keepAlive interval
+                myself.keepAliveIntervalID = setInterval(function() { myself.keepAlive() }, 5000);
+
+                myself.board.sp.on('disconnect', myself.disconnectHandler);
+                myself.board.sp.on('close', myself.closeHandler);
+                myself.board.sp.on('error', myself.errorHandler);
+
+                world.Arduino.lockPort(port);
+                myself.port = myself.board.sp.path;
+
+                ide.inform(myself.owner.name, localize('An Arduino board has been connected. Happy prototyping!'));
+
+                callback();
+            } else {
+                ide.inform(myself.owner.name, localize('Error connecting the board.') + ' ' + err, myself.closeHandler(true));
+            }
+            return;
+        });
+
+        // Set timeout to check if device does not speak firmata (in such case new Board callback was never called, but board object exists) 
+        this.connectionTimeout = setTimeout(function () {
+            // If !board.versionReceived, the board has not established a firmata connection
+            if (myself.board && !myself.board.versionReceived) {
+                var port = myself.board.sp.path;
+
+                ide.inform(
+                        myself.owner.name,
+                        localize('Could not talk to Arduino in port\n')
+                        + port + '\n\n' + localize('Check if firmata is loaded.')
+                        );
+
+                // silently closing the connection attempt
+                myself.disconnect(true); 
+            }
+        }, 10000);
+    };
+
+}

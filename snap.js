@@ -16,9 +16,16 @@ if (projectFileName) {
     projectFileName = projectFileName[0];
 }
 
+serialPort = process.argv.filter(function(any) { return any.indexOf('dev') > -1 });
+
+if (serialPort) {
+    serialPort = serialPort[0];
+}
+
 snapMode = process.argv.indexOf('--plain-snap') > -1;
 canvasMode = process.argv.indexOf('--canvas') > -1;
 httpServerMode = process.argv.indexOf('--serve') > -1 || canvasMode;
+lininoMode = !serialPort && process.argv.indexOf('--linino') > -1;
 
 // Let's treat all parameters
 
@@ -33,21 +40,31 @@ if (!projectFileName) {
     process.exit(1);
 }
 
+if (!serialPort && !lininoMode) {
+    console.error('Please either specify a path to your serial port or run the interpreter in Linino mode');
+    printHelp();
+    process.exit(1);
+}
+
 if (projectFileName) {
     project = fs.readFileSync(projectFileName, { encoding: 'utf-8' });
 }
 
 function printHelp() {
-    console.log('Usage: snap.js yourProject.xml [--plain-snap] [--canvas] [--serve]');
-    console.log('Runs a Berkeley Snap! project or a Snap4Arduino one on the command line\n');
-    console.log('\t--plain-snap\n\t\tRuns a plain Snap! project with no Arduino capabilities');
-    console.log('\t--canvas\n\t\tRenders the Stage in an HTTP-streamable canvas. Automatically adds «--serve»');
+    console.log();
+    console.log('Usage: snap.js yourProject.xml [--plain-snap] [--canvas] [--serve] [/path/to/serial]');
+    console.log('Runs a Berkeley Snap! project or a Snap4Arduino one on the command line.\n');
+    console.log('\t--plain-snap\n\t\tRuns a plain Snap! project with no Arduino capabilities.');
+    console.log('\t--linino\n\t\tUses the LininoIO library for communication with the Arduino instead of Firmata.');
+    console.log('\t\tMeant to be used in boards with embedded GNU/Linux inside (Tian, Yun, etc).');
+    console.log('\t\tIf a serial port is specified, this setting will have no effect.');
+    console.log('\t--canvas\n\t\tRenders the Stage in an HTTP-streamable canvas. Automatically adds «--serve».');
     console.log('\t--serve\n\t\tStarts a simple HTTP server at port 42001 with the following entry points:');
-    console.log('\t\thttp://[IP]:42001/stage\n\t\t\tStreams the Stage in real time. Needs «--canvas»');
-    console.log('\t\thttp://[IP]:42001/broadcast=[message]\n\t\t\tBroadcasts «message» to Snap! so it can be captured by «When I receive» hat blocks');
-    console.log('\t\thttp://[IP]:42001/send-messages\n\t\t\tLists all messages being used in the Snap! program');
-    console.log('\t\thttp://[IP]:42001/send-vars\n\t\t\tLists all variables being used in the Snap! program');
-    console.log('\t\thttp://[IP]:42001/vars-update=[variable]=[value]\n\t\t\tSets the Snap! variable «variable» to «value»');
+    console.log('\t\thttp://[IP]:42001/stage\n\t\t\tStreams the Stage in real time. Needs «--canvas».');
+    console.log('\t\thttp://[IP]:42001/broadcast=[message]\n\t\t\tBroadcasts «message» to Snap! so it can be captured by «When I receive» hat blocks.');
+    console.log('\t\thttp://[IP]:42001/send-messages\n\t\t\tLists all messages being used in the Snap! program.');
+    console.log('\t\thttp://[IP]:42001/send-vars\n\t\t\tLists all variables being used in the Snap! program.');
+    console.log('\t\thttp://[IP]:42001/vars-update=[variable]=[value]\n\t\t\tSets the Snap! variable «variable» to «value».');
     process.exit(0);
 }
 
@@ -146,10 +163,26 @@ if (httpServerMode) {
 }
 
 ide.rawOpenProjectString(project);
-ide.runScripts();
 
-setInterval(loop, 1);
+if (lininoMode) {
+    require('./ideino-linino-lib/utils/proto.js');
+    var linino = require('./ideino-linino-lib');
+    includeInThisContext('linino.js');
+    ide.currentSprite.arduino.board = new linino.Board();
+    ide.currentSprite.arduino.board.connect(function () {
+        console.log('Board connected via LininoIO');
+        startUp();
+    });
+} else {
+    ide.currentSprite.arduino.connect(serialPort, startUp);
+}
 
-function loop() {
-    world.doOneCycle();
+function startUp () {
+    ide.runScripts();
+
+    setInterval(loop, 1);
+
+    function loop() {
+        world.doOneCycle();
+    }
 }
