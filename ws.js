@@ -24,41 +24,61 @@ if (lininoMode) {
             function() { console.log('MCU ready\nFirmata mode'); });
 }
 
-webSocketServer.on('connection', function(ws) {
+webSocketServer.on('connection', function (ws) {
     console.log('Websocket client connected');
-    ws.on('message', function(message) {
+    ws.on('message', function (message) {
         if (debugMode) { console.log(message); }
-        var parsedMessage;
         try {
-            parsedMessage = JSON.parse(message);
+            commands[message[0]].call(null, message[1], message[2] || ws);
         } catch (err) {
-            if (message === 'Hello Tian!') {
-                console.log(':)');
-            } else {
-                console.error('unparseable message:\n' + err);
-            }
+            console.error('unparseable message:\n' + err);
             return;
         }
-        commands[parsedMessage.command].apply(null, parsedMessage.args.concat(ws));
     });
 });
 
-commands.pinMode = function (pin, mode) {
-    if (mode !== 'A') {
-        board.pinMode(lininoMode ? pin.toString() : pin, mode);
-    }
+/*
+   `commands` is a command containing object.
+   Keys are ints because we need to cut bottlenecks everywhere.
 
-    if (!board.pins[pin]) {
-        board.pins[pin] = {};
-    }
+   0 → digital write
+   1 → analog write
+   2 → servo write
+   3 → digital read
+   4 → analog read
+   5 → set pin mode
 
-    board.pins[pin].mode = mode;
+*/
+
+// digitalWrite
+commands[0] = function (pin, booleanValue) {
+    if (!board.pins[pin] || board.pins[pin].mode !== board.MODES.OUTPUT) {
+        if (debugMode) { console.log('setting pin mode to digital output'); }
+        commands[5](pin, board.MODES.OUTPUT);
+    }
+    board.digitalWrite(
+            lininoMode ?
+                pin.toString() :
+                pin,
+            booleanValue === 1 ?
+                board.HIGH :
+                board.LOW);
 };
 
-commands.servoWrite = function (pin, value) {
-    if (!board.pins[pin] || board.pins[pin].mode != board.MODES.SERVO) {
+// analogWrite
+commands[1] = function (pin, value) {
+    if (!board.pins[pin] || board.pins[pin].mode !== board.MODES.PWM) {
+        commands[5](lininoMode ? 'P' + pin : pin, board.MODES.PWM);
+        if (debugMode) { console.log('setting pin mode to PWM'); }
+    }
+    board.analogWrite(lininoMode ? 'P' + pin : pin, value);
+};
+
+// servoWrite
+commands[2] = function (pin, value) {
+    if (!board.pins[pin] || board.pins[pin].mode !== board.MODES.SERVO) {
         if (debugMode) { console.log('setting pin mode to servo'); }
-        commands.pinMode(lininoMode ? 'S' + pin : pin, board.MODES.SERVO);
+        commands[5](lininoMode ? 'S' + pin : pin, board.MODES.SERVO);
     }
 
     var numericValue;
@@ -84,42 +104,43 @@ commands.servoWrite = function (pin, value) {
     board.servoWrite(lininoMode ? 'S' + pin : pin, parseInt(numericValue));
 };
 
-commands.reportAnalogReading = function (pin, ws) {
-    realPin = lininoMode ? board.pin.analog[pin.toString()] : board.pins[board.analogPins[pin]];
-
-    if (!board.pins[realPin] || realPin.mode != board.MODES.ANALOG) {
-        if (debugMode) { console.log('setting pin mode to analog input'); }
-        commands.pinMode(realPin, board.MODES.ANALOG);
-        board.analogRead(realPin, function(value) { 
-            board.pins[realPin].value = value;
-        });
-    }
-    ws.send(JSON.stringify({ pin: realPin, value: board.pins[realPin].value }));
-};
-
-commands.reportDigitalReading = function (pin, ws) {
-    if (!board.pins[pin] || board.pins[pin].mode != board.MODES.INPUT) {
+// digitalRead
+commands[3] = function (pin, ws) {
+    if (!board.pins[pin] || board.pins[pin].mode !== board.MODES.INPUT) {
         if (debugMode) { console.log('setting pin mode to digital input'); }
-        commands.pinMode(pin, board.MODES.INPUT);
+        commands[5](pin, board.MODES.INPUT);
         board.digitalRead(pin, function(value) { 
             board.pins[pin].value = value;
         });
     } 
-    ws.send(JSON.stringify({ pin: pin, value: board.pins[pin].value === 1 }));
+    ws.send('[' + pin + ',' + board.pins[pin].value === 1 + ']');
 };
 
-commands.digitalWrite = function (pin, booleanValue) {
-    if (!board.pins[pin] || board.pins[pin].mode != board.MODES.OUTPUT) {
-        if (debugMode) { console.log('setting pin mode to digital output'); }
-        commands.pinMode(pin, board.MODES.OUTPUT);
+// analogRead
+commands[4] = function (pin, ws) {
+    realPin = lininoMode ?
+        board.pin.analog[pin.toString()] :
+        board.pins[board.analogPins[pin]];
+
+    if (!board.pins[realPin] || board.pins[realPin].mode !== board.MODES.ANALOG) {
+        if (debugMode) { console.log('setting pin mode to analog input'); }
+        commands[5](realPin, board.MODES.ANALOG);
+        board.analogRead(realPin, function(value) { 
+            board.pins[realPin].value = value;
+        });
     }
-    board.digitalWrite(lininoMode ? pin.toString() : pin, booleanValue ? board.HIGH : board.LOW);
+    ws.send('["A' + pin + '",' + board.pins[realPin].value + ']');
 };
 
-commands.pwmWrite = function (pin, value) {
-    if (!board.pins[pin] || board.pins[pin].mode != board.MODES.PWM) {
-        commands.pinMode(lininoMode ? 'P' + pin : pin, board.MODES.PWM);
-        if (debugMode) { console.log('setting pin mode to PWM'); }
+// pinMode
+commands[5] = function (pin, mode) {
+    if (mode !== 'A') {
+        board.pinMode(lininoMode ? pin.toString() : pin, mode);
     }
-    board.analogWrite(lininoMode ? 'P' + pin : pin, value);
+
+    if (!board.pins[pin]) {
+        board.pins[pin] = {};
+    }
+
+    board.pins[pin].mode = mode;
 };
