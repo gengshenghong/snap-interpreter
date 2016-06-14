@@ -27,14 +27,14 @@ if (lininoMode) {
 webSocketServer.on('connection', function (ws) {
     console.log('Websocket client connected');
     console.log('Sending board specs to client');
-    console.log(board.pin);
     ws.send(JSON.stringify(board.pin));
     ws.on('message', function (message) {
         if (debugMode) { console.log(message); }
         try {
             commands[message[0]].call(null, message[1], message[2] || ws);
         } catch (err) {
-            console.error('unparseable message:\n' + err);
+            console.error('Unparseable message:\n' + message);
+            console.error(err);
             return;
         }
     });
@@ -112,11 +112,12 @@ commands[3] = function (pin, ws) {
     if (!board.pins[pin] || board.pins[pin].mode !== board.MODES.INPUT) {
         if (debugMode) { console.log('setting pin mode to digital input'); }
         commands[5](pin, board.MODES.INPUT);
-        board.digitalRead(pin, function(value) { 
-            board.pins[pin].value = value;
+        board.digitalRead(lininoMode ? pin.toString() : pin, function(value) { 
+            console.log('digital change');
+            board.pins[pin].value = value === 1;
+            ws.send('[' + pin + ',' + board.pins[pin].value + ']');
         });
     } 
-    ws.send('[' + pin + ',' + board.pins[pin].value === 3 + ']');
 };
 
 // analogRead
@@ -132,7 +133,8 @@ commands[4] = function (pin, ws) {
             board.pins[realPin].value = value;
         });
     }
-    ws.send('["A' + pin + '",' + board.pins[realPin].value + ']');
+
+    ws.send('["A' + pin + '",' + (board.pins[realPin].value || 0) + ']');
 };
 
 // pinMode
