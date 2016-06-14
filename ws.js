@@ -26,6 +26,9 @@ if (lininoMode) {
 
 webSocketServer.on('connection', function (ws) {
     console.log('Websocket client connected');
+    console.log('Sending board specs to client');
+    console.log(board.pin);
+    ws.send(JSON.stringify(board.pin));
     ws.on('message', function (message) {
         if (debugMode) { console.log(message); }
         try {
@@ -113,7 +116,7 @@ commands[3] = function (pin, ws) {
             board.pins[pin].value = value;
         });
     } 
-    ws.send('[' + pin + ',' + board.pins[pin].value === 1 + ']');
+    ws.send('[' + pin + ',' + board.pins[pin].value === 3 + ']');
 };
 
 // analogRead
