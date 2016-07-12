@@ -5,12 +5,34 @@ localStorage = null;
 
 function nop() { return null };
 
+Object.originalDefineProperty = Object.defineProperty;
+Object.defineProperty = function (obj, prop, descriptor) {
+    if (obj.isBogus) {
+        return;
+    } else {
+        this.originalDefineProperty(obj, prop, descriptor);
+    }
+};
+
+var bogusObject = {
+    data: [0,0,0,0],
+    width: 0,
+    height: 0,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
+    shadowBlur: 0,
+    addColorStop: nop,
+    isBogus: true
+}
+
 function Canvas(width, height) {
     this.width = width;
     this.height = height;
     this.isFake = true;
     this.context = new FakeContext(width, height);
 };
+
+Canvas.prototype = bogusObject;
 
 Canvas.prototype.getContext = function() {
     return this.context;
@@ -23,6 +45,8 @@ function FakeContext(width, height) {
     this.height = height;
     this.isFake = true;
 };
+
+FakeContext.prototype = bogusObject;
 
 document = {
     createElement: function(elementName) {
@@ -66,13 +90,6 @@ var bogusableFunctions = [
     'measureText'
 ];
 
-var bogusObject = {
-    data: [0,0,0,0],
-    width: 0,
-    height: 0,
-    addColorStop: nop
-}
-
 nullableFunctions.forEach(function(each){
     FakeContext.prototype[each] = nop;
 });
@@ -84,10 +101,13 @@ bogusableFunctions.forEach(function(each){
 function Image() {};
 
 HTMLCanvasElement = Canvas;
+CanvasRenderingContext2D = FakeContext;
 
 canvas = new Canvas();
 
 window = { addEventListener: nop };
 
 location = { hash: '' };
+
+function enableRetinaSupport () {}
 

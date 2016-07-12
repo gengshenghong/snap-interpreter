@@ -13,6 +13,8 @@ HTMLCanvasElement = Canvas;
 Image = Canvas.Image;
 canvas = new Canvas(200, 200);
 
+CanvasRenderingContext2D = Canvas.Context2d;
+
 // Oh, you miss your DOM, don't you?
 
 document = {

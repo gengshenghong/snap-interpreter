@@ -10,13 +10,13 @@ vm = require('vm');
 
 // Let's parse all parameters
 
-projectFileName = process.argv.filter(function(any) { return any.substr(-4) === '.xml' });
+projectFileName = process.argv.filter(function (any) { return any.substr(-4) === '.xml'; });
 
 if (projectFileName) {
     projectFileName = projectFileName[0];
 }
 
-serialPort = process.argv.filter(function(any) { return any.indexOf('dev') > -1 });
+serialPort = process.argv.filter(function (any) { return any.indexOf('dev') > -1; });
 
 if (serialPort) {
     serialPort = serialPort[0];
@@ -70,15 +70,18 @@ function printHelp() {
 
 // A hackety "include" that just appends js files in context
 
-include = function(moduleName) { return require(moduleName) };
+include = function (moduleName) { return require(moduleName); };
 
-var includeInThisContext = function(path, needsRequire) {
+var includeInThisContext = function (path, needsRequire) {
     // we can't "require" modules from within "appended" js files
     var code = fs.readFileSync(__dirname + '/' + path, {encoding: 'utf-8'});
 
     if (needsRequire) {
         code = code.replace(/require/g, 'include');
     }
+
+    // The Retina display support changes break everything for us
+    code = code.replace('enableRetinaSupport();', '');
 
     vm.runInThisContext(code, path);
 
@@ -97,6 +100,7 @@ includeInThisContext('snap/morphic.js');
 
 if (!snapMode) {
     includeInThisContext('snap/s4a/morphic.js', true);
+    WorldMorph.prototype.init = WorldMorph.prototype.originalInit;
 }
 
 includeInThisContext('snap/widgets.js');
@@ -139,7 +143,7 @@ includeInThisContext('snap/cloud.js');
 
 // One World
 
-Morph.prototype.world = function() {
+Morph.prototype.world = function () {
     return world;
 }
 
