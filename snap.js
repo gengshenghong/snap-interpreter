@@ -169,8 +169,8 @@ if (httpServerMode) {
 ide.rawOpenProjectString(project);
 
 if (lininoMode) {
-    require('./ideino-linino-lib/utils/proto.js');
-    var linino = require('./ideino-linino-lib');
+    require('ideino-linino-lib/utils/proto.js');
+    var linino = require('ideino-linino-lib');
     includeInThisContext('linino.js');
     var board = new linino.Board();
     ide.currentSprite.arduino.board = board;
